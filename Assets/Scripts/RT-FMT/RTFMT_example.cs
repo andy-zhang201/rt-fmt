@@ -1,6 +1,6 @@
 ﻿//#define _FIX_SEED_
-//#define _DEBUG_0_ // Draw tree
-//#define _DEBUG_2_ // Draw spheres
+#define _DEBUG_0_ // Draw tree
+#define _DEBUG_2_ // Draw spheres
 
 #define _DRAW_PATH
 using System.Collections;
@@ -79,7 +79,7 @@ public class RTFMT_example : MonoBehaviour
 
     }
 
-    // Update is called once per frame 
+    // Update is called once per frame
     void Update()
     {
         Vector3 pointLeft;
@@ -129,7 +129,7 @@ public class RTFMT_example : MonoBehaviour
         {
             //arrivalTime = planner.getPlanTime();
             //executedCost = motionController.getExecutedCost();
-            //Debug.Log("planTime: " + planTime + ", arrivalTime: " + arrivalTime + ", plannedCost: " + plannedCost + ", executedCost: " + executedCost + ", success: " + success + ", collided: " + collided + ", attempts: " + attempts + ", nodes: " + nodeCount); //+ ", attempts: " + attempts + ", nodes: " + nodeCount); 
+            //Debug.Log("planTime: " + planTime + ", arrivalTime: " + arrivalTime + ", plannedCost: " + plannedCost + ", executedCost: " + executedCost + ", success: " + success + ", collided: " + collided + ", attempts: " + attempts + ", nodes: " + nodeCount); //+ ", attempts: " + attempts + ", nodes: " + nodeCount);
             //Debug.Log("Run: #" + experimentCounter + ", Number of nodes: " + numberOfSamples);
 
             //this.GetComponent<Rigidbody>().velocity = Vector3.zero;
@@ -138,7 +138,7 @@ public class RTFMT_example : MonoBehaviour
             //planner.init(this.transform.position, numberOfSamples);
             //planner.setGoal(goalPosition);
 
-            
+
             //this.GetComponent<Rigidbody>().velocity = Vector3.zero;
             //this.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
             //Reset();
@@ -195,13 +195,28 @@ public class RTFMT_example : MonoBehaviour
                 planner.drawTree();
 
             if (drawNodes) {
-                Drawer.drawSpheres(planner.unvisitedNodes, new Color(0, 1, 1, debug_radius), 0.15f);
-                Drawer.drawSpheres(planner.openNodes, new Color(0, 1, 1, 1), debug_radius);
-                Drawer.drawSpheres(planner.closedNodes, new Color(0, 0, 1, 1), debug_radius);
-                Drawer.drawSpheres(planner.obstructedNodes.SelectMany(list => list).ToList(), new Color(1, 0, 1, 1), debug_radius);
-                Drawer.drawSpheres(planner.blockedNodes, new Color(1, 1, 0, 1), debug_radius / 1.25f);
+                // Teal, small spheres
+                //This is NOT the root node the robot attempts to locally reach one step at a time.
+                Drawer.drawSpheres(planner.unvisitedNodes, new Color(1, 1, 1, debug_radius), 0.15f); 
+                // Color(red,green,blue,opacity)
+                
+                //White
+                Drawer.drawSpheres(planner.openNodes, new Color(1, 1, 1, 1), debug_radius); // White, large spheres
+
+                //Black
+                Drawer.drawSpheres(planner.closedNodes, new Color(0, 0, 0, 0.5f), debug_radius); // Black
+
+                //Blue
+                Drawer.drawSpheres(planner.obstructedNodes.SelectMany(list => list).ToList(), new Color(0, 0, 1, 1), debug_radius); // Blue
+
+                //Yellow, small
+                Drawer.drawSpheres(planner.blockedNodes, new Color(1, 1, 0, 0.5f), debug_radius / 1.5f); // Yellow, small
+
+                //Green
                 Drawer.drawSpheres(planner.rewireRootList, Color.green, debug_radius);
-                Drawer.drawSpheres(planner.rewireLocalList, new Color(0, 0.7f, 0, 1), debug_radius);
+
+                //Dark Green
+                Drawer.drawSpheres(planner.rewireLocalList, new Color(0, 0.5f, 0, 1), debug_radius); //Solid Dark green
                 //Gizmos.color = new Color(1, 0.6f, 0, 1);
                 //Gizmos.DrawSphere(sp, debug_radius + 0.1f);
                 //drawCircle(this.transform.position, 1, Color.red);

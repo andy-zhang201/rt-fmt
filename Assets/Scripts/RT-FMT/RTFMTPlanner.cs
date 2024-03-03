@@ -250,11 +250,13 @@ public class RTFMTPlanner
 
     public void update()
     {
+        //Slow sim speed
+        Time.timeScale = 0.15f;
         updateObstructedNodes();
-        
+
 
         //rewireFromRoot1();
-        
+
         //updateRewireFromRoot();
         for (int i = 0; i < expandTreeRate; i++)
         {
@@ -292,7 +294,7 @@ public class RTFMTPlanner
     public void updateRoot()
     {
         oldRootNode = newRootNode;
-        if (generatedPath.Count > 1) { 
+        if (generatedPath.Count > 1) {
             newRootNode = findNextNodeInPath(generatedPath);
         }
         if (newRootNode != null && (oldRootNode != newRootNode))
@@ -656,7 +658,7 @@ public class RTFMTPlanner
             if(xBlockedChild != null)
             {
 
-            
+
             if (!obstructedNodes1d.Contains(xBlockedChild))
             {
                 List<Node.Neighbor> YNear = xBlockedChild.near(allNodes, rn, NodeState.Open, NodeState.Closed);
@@ -674,7 +676,7 @@ public class RTFMTPlanner
                                 blockedNodes.Remove(xBlockedChild);
                                 recalculateChildrenCost(xBlockedChild);
                             }
-                        
+
                     }
                 }
             }
@@ -713,7 +715,7 @@ public class RTFMTPlanner
                 xTestChild.parent.children.Remove(xTestChild); // Remove xTestChild from previous parent
                 xTestParent.addChildUpdateParent(xTestChild, cNew); // add child to new parent
                 blockedNodes.Remove(xTestChild);
-                //recalculateChildrenCost(xTestChild); 
+                //recalculateChildrenCost(xTestChild);
             }
 
             if (!rewireRootListHistory.Contains(xTestChild))
@@ -931,7 +933,7 @@ public class RTFMTPlanner
         return samplesList_;
     }
 
-    // 
+    //
     void computeRadius(int success, int trials, int numSampples)
     {
         float zeta = unitBallVolume(dim);
@@ -958,6 +960,9 @@ public class RTFMTPlanner
 #if _DEBUG_1_
 		Debug.Log("The free volume is: " + freeVol);
 #endif
+Debug.Log("The free volume is: " + freeVol);
+
+Debug.Log("Hello World");
         return freeVol;
     }
 
