@@ -28,8 +28,10 @@ public class RTFMT_example : MonoBehaviour
     float debug_radius = 0.3f;
     Vector3 startPosition;
     //Game variables
-    public Vector2 xBound = new Vector2(-15, 15);
-    public Vector2 yBound = new Vector2(-15, 15);
+    public Vector2 xBound = new Vector2(-300, 300);
+    public Vector2 yBound = new Vector2(-300, 300);
+    // public Vector2 xBound = new Vector2(-15, 15);
+    // public Vector2 yBound = new Vector2(-15, 15);
     public static float ballRadius;
     //public static Vector3 offset3D = new Vector3(0, ballRadius, 0);
 
@@ -45,7 +47,7 @@ public class RTFMT_example : MonoBehaviour
     List<Node> path;
     Vector3 sp;
 
-    public Vector3 goalPosition = new Vector3(0, ballRadius, 10);
+    public Vector3 goalPosition = new Vector3(-20, ballRadius, 10);
     public float safeRadiusDObstacle = 2f;
     public float checkDObstacleDistance = 10f;
 
