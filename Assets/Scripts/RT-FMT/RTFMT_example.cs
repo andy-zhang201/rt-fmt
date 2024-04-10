@@ -50,7 +50,7 @@ public class RTFMT_example : MonoBehaviour
     public Vector3 goalPosition = new Vector3(-20, ballRadius, 10);
     public float safeRadiusDObstacle = 2f;
     public float checkDObstacleDistance = 10f;
-
+    public string myName = "none";
     public float gain = 2;
 
     // Use this for initialization
@@ -73,7 +73,7 @@ public class RTFMT_example : MonoBehaviour
         //planner.setGoal(new Vector3(0, ballRadius, 10));
         //planner.setGoal(new Vector3(2, ballRadius, 1.5f));
         //planner.setGoal(planner.samplePoint());
-
+        Debug.Log("Hello Start");
         startPosition = this.transform.position;
 
 
