@@ -8,15 +8,28 @@ using Utils;
 using UnityEngine.Assertions;
 using System;
 
-namespace RTFMT {
 
-public class RTFMTPlanner
+namespace RTFMT_MultiAgent {
+
+public class RTFMTPlannerMultiAgent
 {
     int debugCounter = 0;
 
-    //Game variables
-    LayerMask obstaclesLayer;
+    /*
+     ***********************
+     *   Game variables
+     ***********************
+    */
+
+    // Fixed obstacles layer
+    LayerMask fixedObstaclesLayer;
+
+    // Dynamic obstacles (transform objects)
     List<Transform> dynamicObstacles;
+
+    // Agents (transform objects)
+    List<Transform> agents;
+
     float checkDObstacleDistance;
     public static float ballRadius;
     public static Vector3 offset3D;
@@ -24,13 +37,14 @@ public class RTFMTPlanner
 
     MonoBehaviour robot;
 
-    // Validator variables
-    Vector2 xBound;
-    Vector2 yBound;
+    /*
+     **************************
+     *   Planner variables
+     **************************
+    */
 
-    //List variables
-    int sampleNumber;
-    public List<Vector3> samplesList;
+    // Node lists
+    List<Vector3> samplesList;
     List<Node> treeNodes;
     public Node rootNode;
 
@@ -47,17 +61,12 @@ public class RTFMTPlanner
     List<Node> closedToOpenNodes;
     Node zNode;
 
-    // neighbor checking variables
-    int dim;
-    float rnScale = 1.1f;
-    float rn;
-
     // Obstructed points
     public List<List<Node>> obstructedNodes; // List of obstructed nodes for each obstacle
     public List<Node> obstructedNodes1d; //Flattened version of obstructedNodes
     public float safeRadiusDObstacle;
 
-    //Rewire nodes
+    // Rewire nodes
     public List<Node> rewireRootList;
     List<Node> rewireRootListHistory;
 
@@ -84,23 +93,27 @@ public class RTFMTPlanner
     long rewire_root_ms;
 
 
-    int expandTreeRate = 32; //32
+    int expandTreeRate = 32;
+
+    float rn;
 
 
-    const bool keep_searching = true; //used to keep searching path if no znode is found in case a dynamic obstacle is blocking it.
-    public RTFMTPlanner(Vector2 xBound, Vector2 yBound, LayerMask obstaclesLayer, int dim, MonoBehaviour robot, List<Transform> dynamicObstacles, float ballRadius, float safeRadiusDObstacle, float checkDObstacleDistance)
+    const bool keep_searching = true; // used to keep searching path if no znode is found in case a dynamic obstacle is blocking it.
+    public RTFMTPlannerMultiAgent(
+        MonoBehaviour robot,
+        float ballRadius, 
+        float safeRadiusDObstacle, 
+        float checkDObstacleDistance,
+        LayerMask fixedObstaclesLayer,
+        List<Transform> dynamicObstacles)
     {
-
-        this.xBound = xBound;
-        this.yBound = yBound;
-        this.dim = dim;
-        this.obstaclesLayer = obstaclesLayer;
+        this.fixedObstaclesLayer = fixedObstaclesLayer;
         this.dynamicObstacles = dynamicObstacles;
 
         this.robot = robot;
 
-        RTFMTPlanner.ballRadius = ballRadius;
-        RTFMTPlanner.offset3D =  new Vector3(0, ballRadius, 0);
+        RTFMTPlannerMultiAgent.ballRadius = ballRadius;
+        RTFMTPlannerMultiAgent.offset3D =  new Vector3(0, ballRadius, 0);
         this.safeRadiusDObstacle = safeRadiusDObstacle;
         this.checkDObstacleDistance = checkDObstacleDistance;
 }
@@ -140,15 +153,14 @@ public class RTFMTPlanner
     {
         return this.treeNodes.Count;
     }
-    public void init(Vector3 xInit, int sampleNumber)
+    public void init(Vector3 xInit, float rn, List<Vector3> samplesList)
     {
+        this.reset();
 
         this.xInit = xInit;
 
-        this.reset();
-
-        this.samplesList = generateUniformSamplesAndComputeRadius(sampleNumber);
-        this.sampleNumber = sampleNumber;
+        this.samplesList = samplesList;
+        this.rn = rn;
 
         unvisitedNodes = pointsToNode(samplesList, NodeState.Unvisited);
         Node xInitNode = pointToNode(xInit, 0, NodeState.Undefined); //Once I add to open, I change the Node state
@@ -368,12 +380,12 @@ public class RTFMTPlanner
             for (int i = 0; i < path.Count; i++)
             {
                 float dist = (robot.transform.position - path[i].q).magnitude;
-                if (dist < RTFMTPlanner.ballRadius)
+                if (dist < RTFMTPlannerMultiAgent.ballRadius)
                     closestNodeIdx = i;
             }*/
 
             float dist = (robot.transform.position - path[0].q).magnitude;
-            if (dist < RTFMTPlanner.ballRadius)
+            if (dist < RTFMTPlannerMultiAgent.ballRadius)
                 closestNodeIdx = 0;
 
             if (closestNodeIdx != -1)
@@ -849,7 +861,7 @@ public class RTFMTPlanner
         Vector3 dir = p2 - p1;
         //bool result = !Physics.Raycast(p1, dir, out collisionInfo, dir.magnitude, layer);
         //bool result = !Physics.Raycast(p1, dir, out collisionInfo, dir.magnitude, layer);
-        bool result = !Physics.SphereCast(p1, RTFMTPlanner.ballRadius, dir, out collisionInfo, dir.magnitude, layer);
+        bool result = !Physics.SphereCast(p1, RTFMTPlannerMultiAgent.ballRadius, dir, out collisionInfo, dir.magnitude, layer);
 
 #if _DEBUG_1_
 		Debug.DrawRay(p1, dir, Color.red);
@@ -912,104 +924,6 @@ public class RTFMTPlanner
             if (list[i] < list[pos]) { pos = i; }
         }
         return pos;
-    }
-
-    public List<Vector3> generateUniformSamplesAndComputeRadius(int numSamples)
-    {
-        List<Vector3> samplesList_ = new List<Vector3>(numSamples);
-        int trials = 0;
-        int success = 0;
-        while (samplesList_.Count < numSamples)
-        {
-            Vector3 sampledVector = samplePoint();
-            bool collision = Physics.CheckSphere(sampledVector, RTFMTPlanner.ballRadius, obstaclesLayer);
-            if (!collision)
-            {
-                samplesList_.Add(sampledVector);
-                success++;
-            }
-            trials++;
-        }
-        computeRadius(success, trials, numSamples);
-        return samplesList_;
-    }
-
-    //
-    void computeRadius(int success, int trials, int numSampples)
-    {
-        float zeta = unitBallVolume(dim);
-        float mu = freeVolume(success, trials);
-
-        float gamma = 2 * Mathf.Pow((1 + 1 / (float)dim), (1 / (float)dim)) * Mathf.Pow((mu / zeta), (1 / (float)dim)); // (1 + 1 / d) is from PRM not FMT, which is 1 / d only
-
-        rn = rnScale * gamma * Mathf.Pow((Mathf.Log10(numSampples) / (float)numSampples), (1 / (float)dim));
-
-#if _DEBUG_1_
-		Debug.Log("The neighbor radius is: " + rn);
-#endif
-    }
-
-    // freeVolume computes the estimate of the obstacle-free part of the environment
-    // using the upper confidence bound.
-    // It is safer to mistake the volume bigger than it actually is.
-    float freeVolume(int success, int trials)
-    {
-        float area = totalArea();
-        Vector2 CI = Prob.binomialInterval(success, trials);
-
-        float freeVol = CI[1] * area;
-#if _DEBUG_1_
-		Debug.Log("The free volume is: " + freeVol);
-#endif
-Debug.Log("The free volume is: " + freeVol);
-
-Debug.Log("Hello World");
-        return freeVol;
-    }
-
-    public float unitBallVolume(int dim)
-    {
-        Assert.IsTrue(dim >= 0);
-        if (dim == 0)
-        {
-            return 1;
-        }
-        else if (dim == 1)
-        {
-            return 2;
-        }
-        else
-        {
-            return 2 * Mathf.PI / dim * unitBallVolume(dim - 2);
-
-        }
-    }
-
-    float totalArea()
-    {
-        float area;
-        float diffx = this.xBound[1] - this.xBound[0];
-        float diffy = this.yBound[1] - this.yBound[0];
-        area = diffx * diffy;
-        return area;
-    }
-
-    public Vector3 samplePoint()
-    {
-        Vector3 sampledVector = new Vector3(UnityEngine.Random.Range(xBound[0], xBound[1]), RTFMTPlanner.ballRadius, UnityEngine.Random.Range(yBound[0], yBound[1]));
-        return sampledVector;
-    }
-    public Vector3 sampleValidPoint()
-    {
-        Vector3 sampledVector = Vector3.zero;
-        bool collision = true;
-        while (collision)
-        {
-            sampledVector = samplePoint();
-            collision = Physics.CheckSphere(sampledVector, RTFMTPlanner.ballRadius, obstaclesLayer);
-        }
-            //TODO: check fixed and moving obstacle
-        return sampledVector;
     }
 
     Node pointToNode(Vector3 point, float cost, NodeState state)
@@ -1114,8 +1028,8 @@ Debug.Log("Hello World");
             Node nextNode = generatedPath[i + 1];
             //Debug.DrawLine(curNode.q + RTFMT.offset3D, nextNode.q + RTFMT.offset3D, Color.red);
 
-            var p1 = curNode.q + RTFMTPlanner.offset3D;
-            var p2 = nextNode.q + RTFMTPlanner.offset3D;
+            var p1 = curNode.q + RTFMTPlannerMultiAgent.offset3D;
+            var p2 = nextNode.q + RTFMTPlannerMultiAgent.offset3D;
             var thickness = 4;
             Handles.DrawBezier(p1, p2, p1, p2, Color.red, null, thickness);
         }
@@ -1159,6 +1073,7 @@ Debug.Log("Hello World");
         }
     }
 }
+
 public enum NodeState
 {
     Undefined,
@@ -1325,7 +1240,7 @@ public class Node
                 {
                     Neighbor neighbor = new Neighbor();
                     neighbor.node = nodeInList;
-                    bool collisionResult = this.isCollisionFree(nodeInList, fixedObstaclesLayer, RTFMTPlanner.ballRadius);//RTFMT.ballRadius);
+                    bool collisionResult = this.isCollisionFree(nodeInList, fixedObstaclesLayer, RTFMTPlannerMultiAgent.ballRadius);//RTFMT.ballRadius);
                     neighbor.isCollisionFreeFObs = collisionResult;
                     neighbors.Add(neighbor);
                 }

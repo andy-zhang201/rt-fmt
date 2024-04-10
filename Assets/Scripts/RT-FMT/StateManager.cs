@@ -1,5 +1,13 @@
-using UnityEngine;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
+using UnityEngine;
+using UnityEditor;
+using UnityEngine.Assertions;
+
+using Utils;
 
 public class StateManager : MonoBehaviour {
     // Global state manager instance
@@ -13,19 +21,39 @@ public class StateManager : MonoBehaviour {
 
     // Sampled nodes
     public int sampleNumber = 500;
-    public List<Vector3> samplesList { get; private set; };
+    private List<Vector3> samplesList;
 
-    // Agent positions
-    public Dictionary<int, Transform> agentPositions { get; private set; } = 
-        new Dictionary<int, Transform>();
-
+    // Agents layer
+    private LayerMask agentsLayer;
+    private List<GameObject> agentsObjects;
+    private List<Transform> agents;
+    
     // Fixed obstacles layer
-    public LayerMask fixedObstaclesLayer { get; private set; };
+    public LayerMask fixedObstaclesLayer;
     
     // Dynamic obstacle positions
-    private LayerMask dynamicObstaclesLayer;
-    private List<GameObject> dynamicObstaclesObjs;
-    public List<Transform> dynamicObstacles;
+    public LayerMask dynamicObstaclesLayer;
+    public List<GameObject> dynamicObstaclesObjects;
+    private List<Transform> dynamicObstacles;
+
+    // Agent ball radius
+    public float sphereColliderRadius = 0.5f;
+    public float ballRadius;
+
+    /*
+     **************************
+     *   Validator variables
+     **************************
+    */
+
+    // Neighbor checking variables
+    int dim = 2;
+    float rnScale = 1.1f;
+    public float rn;
+
+    // Map bounds
+    public Vector2 xBound = new Vector2(-50, 50);
+    public Vector2 yBound = new Vector2(-50, 50);
 
     // Create singleton class instance (only one instance present at all times)
     private void Awake() {
@@ -45,8 +73,16 @@ public class StateManager : MonoBehaviour {
             
             // Dynamic obstacles
             dynamicObstaclesLayer = LayerMask.GetMask("Dynamic Obstacles");
-            dynamicObstaclesObjects = Utils.getAllObjectsInLayer(dynamicObstaclesLayer);
+            dynamicObstaclesObjects = getAllObjectsInLayer(dynamicObstaclesLayer);
             dynamicObstacles = dynamicObstaclesObjects.Select(x => x.transform).ToList();
+
+            // Agents
+            agentsLayer = LayerMask.GetMask("Agents");
+            agentsObjects = getAllObjectsInLayer(agentsLayer);
+            agents = agentsObjects.Select(x => x.transform).ToList();
+            
+            // Setup ball radius (fixed for all agents)
+            ballRadius = sphereColliderRadius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
 
             // Sample nodes
             samplesList = generateUniformSamplesAndComputeRadius(sampleNumber);
@@ -58,18 +94,33 @@ public class StateManager : MonoBehaviour {
             */
 
             // Subscribe to agent movement event
-            StateEvents.OnAgentMoved += UpdateAgentPosition;
+            // StateEvents.OnAgentMoved += UpdateAgentPosition;
         }
     }
 
-    private void OnDestroy() {
-        // Unsubscribe from agent movement event
-        StateEvents.OnAgentMoved -= UpdateAgentPosition;
-    }
+    // private void OnDestroy() {
+    //     // Unsubscribe from agent movement event
+    //     StateEvents.OnAgentMoved -= UpdateAgentPosition;
+    // }
 
     // Private method for state manager to update current position of given agent
-    private void UpdateAgentPosition(int agentId, Transform newPose) {
-        agentPositions[agentId] = newPose;
+    // private void UpdateAgentPosition(int agentId, Transform newPose) {
+    //     agentPositions[agentId] = newPose;
+    // }
+
+    public List<Transform> GetAgents()
+    {
+        return new List<Transform>(agents);
+    }
+
+    public List<Transform> GetDynamicObstacles()
+    {
+        return new List<Transform>(dynamicObstacles);
+    }
+
+    public List<Vector3> GetSamples()
+    {
+        return new List<Vector3>(samplesList);
     }
 
     private List<Vector3> generateUniformSamplesAndComputeRadius(int numSamples)
@@ -101,9 +152,9 @@ public class StateManager : MonoBehaviour {
 
         rn = rnScale * gamma * Mathf.Pow((Mathf.Log10(numSampples) / (float)numSampples), (1 / (float)dim));
 
-#if _DEBUG_1_
+// #if _DEBUG_1_
 		Debug.Log("The neighbor radius is: " + rn);
-#endif
+// #endif
     }
 
     // freeVolume computes the estimate of the obstacle-free part of the environment
@@ -120,7 +171,6 @@ public class StateManager : MonoBehaviour {
 #endif
 Debug.Log("The free volume is: " + freeVol);
 
-Debug.Log("Hello World");
         return freeVol;
     }
 
@@ -153,7 +203,25 @@ Debug.Log("Hello World");
 
     private Vector3 samplePoint()
     {
-        Vector3 sampledVector = new Vector3(UnityEngine.Random.Range(xBound[0], xBound[1]), RTFMTPlannerMultiAgent.ballRadius, UnityEngine.Random.Range(yBound[0], yBound[1]));
+        Vector3 sampledVector = new Vector3(UnityEngine.Random.Range(xBound[0], xBound[1]), ballRadius, UnityEngine.Random.Range(yBound[0], yBound[1]));
         return sampledVector;
+    }
+
+    List<GameObject> getAllObjectsInLayer(LayerMask layer)
+    {
+        UnityEngine.Object[] tempList = Resources.FindObjectsOfTypeAll(typeof(GameObject));
+        List<GameObject> realList = new List<GameObject>();
+        GameObject temp;
+
+        foreach (UnityEngine.Object obj in tempList)
+        {
+            if (obj is GameObject)
+            {
+                temp = (GameObject)obj;
+                if ((1 << temp.layer) == layer)
+                    realList.Add((GameObject)obj);
+            }
+        }
+        return realList;
     }
 }
