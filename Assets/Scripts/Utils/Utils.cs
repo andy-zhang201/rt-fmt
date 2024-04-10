@@ -6,6 +6,23 @@ using UnityEditor;
 
 namespace Utils
 {
+    List<GameObject> getAllObjectsInLayer(LayerMask layer)
+    {
+        UnityEngine.Object[] tempList = Resources.FindObjectsOfTypeAll(typeof(GameObject));
+        List<GameObject> realList = new List<GameObject>();
+        GameObject temp;
+
+        foreach (UnityEngine.Object obj in tempList)
+        {
+            if (obj is GameObject)
+            {
+                temp = (GameObject)obj;
+                if ((1 << temp.layer) == layer)
+                    realList.Add((GameObject)obj);
+            }
+        }
+        return realList;
+    }
 
     public static class Prob
     {
