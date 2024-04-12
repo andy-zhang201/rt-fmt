@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEditor;
 using Utils;
 using UnityEngine.Assertions;
-using System;
-
 
 namespace RTFMT_MultiAgent {
 
@@ -261,7 +259,7 @@ public class RTFMTPlannerMultiAgent
     }
 
 
-    public void update()
+    public void update(GameObject id, Dictionary<GameObject, Pair> dictionary)
     {
         //Slow sim speed
         Time.timeScale = 0.5f;
@@ -273,7 +271,7 @@ public class RTFMTPlannerMultiAgent
         //updateRewireFromRoot();
         for (int i = 0; i < expandTreeRate; i++)
         {
-            rewireLocally();
+            rewireLocally(id, dictionary);
             expandTree();
             rewireFromRoot2();
         }
@@ -659,11 +657,20 @@ public class RTFMTPlannerMultiAgent
         }
     }
 
-    void rewireLocally()
+    void rewireLocally(GameObject id, Dictionary<GameObject, Pair> dictionary)
     {
         if (rewireLocalList.Count == 0)
         {
             rewireLocalList = new List<Node>(blockedNodes);
+
+            foreach (var key in dictionary.Keys)
+            {
+                if (id != key && dictionary[key].next_node == dictionary[id].next_node && dictionary[key].priorityDistance < dictionary[id].priorityDistance);
+                {
+                    rewireLocalList.Add(dictionary[id].next_node);
+                }
+            }
+            
         }
         else
         {

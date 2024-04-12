@@ -56,6 +56,11 @@ public class RTFMT_example_multi : MonoBehaviour
 
     public float gain = 2;
 
+    //// Priority System ////
+    public float priorityDistance;
+    public Node next_node;
+    public Dictionary<GameObject, Pair> nextNodeDictionary;
+
     // Use this for initialization
     void Start()
     {
@@ -69,6 +74,10 @@ public class RTFMT_example_multi : MonoBehaviour
         dynamicObstaclesObjs = StateManager.instance.dynamicObstaclesObjects;
         dynamicObstacles = StateManager.instance.GetDynamicObstacles();
         dynamicObstacles.Remove(this.transform); // Remove itself in case the robot is also a dynamic obstacle
+
+        Debug.Log("GameObject: " + gameObject);
+
+        Debug.Log("Object ID: " + this.GetInstanceID());
 
         agents = StateManager.instance.GetAgents();
         Debug.Log("Agents Size: " + agents.Count);
@@ -99,8 +108,12 @@ public class RTFMT_example_multi : MonoBehaviour
 
         startPosition = this.transform.position;
 
-
         motionController = new MotionController(this, gain);
+
+        Debug.Log("ID:" + this.GetInstanceID());
+
+        /////Priority System/////
+        next_node = new Node(startPosition, 0, NodeState.Undefined);
 
     }
 
@@ -124,7 +137,10 @@ public class RTFMT_example_multi : MonoBehaviour
             planner.setRoot(selectedNode);
         }
 
-        planner.update();
+        /////Priority System/////
+        nextNodeDictionary = StateManager.instance.GetNextNodeDictionary();
+
+        planner.update(gameObject, nextNodeDictionary);
 
         /*
 		 * if (planner.isPathFound())
@@ -136,6 +152,11 @@ public class RTFMT_example_multi : MonoBehaviour
 
         path = planner.getPath();
         Node spNode = path[0];
+
+        /////Priority System/////
+        // Update Next Node
+        next_node = path[0];
+        priorityDistance = Vector3.Distance(this.transform.position, next_node.q);
 
         bool blockedNode = planner.blockedNodes.Contains(spNode);
         bool obstructedNode = planner.obstructedNodes1d.Contains(spNode);

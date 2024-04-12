@@ -9,6 +9,13 @@ using UnityEngine.Assertions;
 
 using Utils;
 
+//// Priority Systen ////
+public struct Pair
+{
+    public float priorityDistance;
+    public RTFMT_MultiAgent.Node next_node;
+}
+
 public class StateManager : MonoBehaviour {
     // Global state manager instance
     public static StateManager instance { get; private set; }
@@ -24,7 +31,7 @@ public class StateManager : MonoBehaviour {
     private List<Vector3> samplesList;
 
     // Agents layer
-    private LayerMask agentsLayer;
+    public LayerMask agentsLayer;
     private List<GameObject> agentsObjects;
     private List<Transform> agents;
     
@@ -39,6 +46,8 @@ public class StateManager : MonoBehaviour {
     // Agent ball radius
     public float sphereColliderRadius = 0.5f;
     public float ballRadius;
+
+    public Dictionary<GameObject, Pair> nextNodeDictionary;
 
     /*
      **************************
@@ -80,12 +89,20 @@ public class StateManager : MonoBehaviour {
             agentsLayer = LayerMask.GetMask("Agents");
             agentsObjects = getAllObjectsInLayer(agentsLayer);
             agents = agentsObjects.Select(x => x.transform).ToList();
+
+            for (int i = 0; i < agents.Count; i++)
+            {
+                Debug.Log("AgentID: " + agentsObjects[i].GetInstanceID());
+            }
             
             // Setup ball radius (fixed for all agents)
             ballRadius = sphereColliderRadius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
 
             // Sample nodes
             samplesList = generateUniformSamplesAndComputeRadius(sampleNumber);
+
+            // Create a Dictionary to store priority distance and next node for each agent
+            nextNodeDictionary = new Dictionary<GameObject, Pair>(); 
 
             /*
              ***************************
@@ -107,6 +124,18 @@ public class StateManager : MonoBehaviour {
     // private void UpdateAgentPosition(int agentId, Transform newPose) {
     //     agentPositions[agentId] = newPose;
     // }
+
+    public Dictionary<GameObject, Pair> GetNextNodeDictionary()
+    {
+        for (int i = 0; i < agentsObjects.Count; i++)
+        {
+            Pair priority = new Pair {priorityDistance = agentsObjects[i].GetComponent<RTFMT_example_multi>().priorityDistance, next_node = agentsObjects[i].GetComponent<RTFMT_example_multi>().next_node};
+            nextNodeDictionary[agentsObjects[i]] = priority;
+            Debug.Log("NextNodeDictionary:" + nextNodeDictionary[agentsObjects[i]].next_node);
+        }
+
+        return nextNodeDictionary;
+    }
 
     public List<Transform> GetAgents()
     {
