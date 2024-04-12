@@ -22,17 +22,25 @@ public class MotionController{
         this.gain = gain;
     }
 
-    public void control(Vector3 setpoint, float clearance)
+    public void control(Vector3 setpoint, float clearance) // Position controller
     {
         Vector3 error = (setpoint - this.unityComponent.transform.position);
         Vector3 velocityVector = this.gain * error.normalized;
         //Debug.Log("Setpoint: " + setpoint+ ", Vel vector: " + velocityVector +  ", Object position: " + this.unityComponent.transform.position);
         //Debug.Log(velocityVector.magnitude);
-        if(error.magnitude > clearance)
+
+        List<Transform> tf = StateManager.instance.GetAgents();
+        
+        Debug.Log("--------------------");
+        Debug.Log("Agent1: "+ tf[0].position);
+        Debug.Log("Velocity: "+ this.unityComponent.GetComponent<Rigidbody>().velocity);
+        Debug.Log("--------------------");
+
+        if(error.magnitude > clearance) // If object not on top of root node position, move towards it at velcotiy
         {
             this.unityComponent.GetComponent<Rigidbody>().velocity = velocityVector;
         }
-        else
+        else // else stop
         {
             this.unityComponent.GetComponent<Rigidbody>().velocity = Vector3.zero;
             this.unityComponent.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;

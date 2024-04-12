@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Example/RTFMT_dynamic.unity
+- path: Assets/Scenes/Example/MultiAgent_New.unity
   isLoaded: 1
   isActive: 1
