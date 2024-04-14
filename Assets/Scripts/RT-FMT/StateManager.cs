@@ -48,6 +48,7 @@ public class StateManager : MonoBehaviour {
     public float ballRadius;
 
     public Dictionary<GameObject, Pair> nextNodeDictionary;
+    private static Dictionary<string, int> staticPrioDictionary;
 
     /*
      **************************
@@ -104,6 +105,14 @@ public class StateManager : MonoBehaviour {
             // Create a Dictionary to store priority distance and next node for each agent
             nextNodeDictionary = new Dictionary<GameObject, Pair>(); 
 
+            staticPrioDictionary = new Dictionary<string, int>(); 
+            for (int i = 0; i < agentsObjects.Count; i++)
+            {
+                int priority = i;
+                staticPrioDictionary[agentsObjects[i].name] = priority;
+                Debug.Log("Agent Name: " + agentsObjects[i].name);
+                Debug.Log("Static Priority:" + staticPrioDictionary[agentsObjects[i].name].ToString());
+            }
             /*
              ***************************
              Setup event handlers
@@ -137,9 +146,20 @@ public class StateManager : MonoBehaviour {
         return nextNodeDictionary;
     }
 
+    public Dictionary<string, int> GetStaticPriority()
+    {
+        return staticPrioDictionary;
+    }
+
+    
     public List<Transform> GetAgents()
     {
         return new List<Transform>(agents);
+    }
+
+    public List<GameObject> GetAgentsObjects()
+    {
+        return agentsObjects;
     }
 
     public List<Transform> GetDynamicObstacles()

@@ -2526,7 +2526,6 @@ public class BallControl : MonoBehaviour
         mRRT = new LazyRRT(new Vector3(agent_pos[0], ballRadius, agent_pos[2]), new Vector2(0, 1), ballRadius, new Vector2(xd, yd), iterationExperiment, checkDObstacleDistance, safeRadiusDObstacle, xBound, zBound);
 
 
-
         motionController = new MotionController(this, gain);
         resultsList = new List<ResultsManager>();
         index_on_RRT = 0;

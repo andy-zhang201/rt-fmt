@@ -54,7 +54,7 @@ public class RTFMT_example_multi : MonoBehaviour
     public float safeRadiusDObstacle = 2f;
     public float checkDObstacleDistance = 10f;
 
-    public float gain = 2;
+    public float gain = 10.0f;
 
     //// Priority System ////
     public float priorityDistance;
@@ -108,7 +108,7 @@ public class RTFMT_example_multi : MonoBehaviour
 
         startPosition = this.transform.position;
 
-        motionController = new MotionController(this, gain);
+        motionController = new MotionController(this, this.gain);
 
         Debug.Log("ID:" + this.GetInstanceID());
 
@@ -139,7 +139,7 @@ public class RTFMT_example_multi : MonoBehaviour
 
         /////Priority System/////
         nextNodeDictionary = StateManager.instance.GetNextNodeDictionary();
-
+        
         planner.update(gameObject, nextNodeDictionary);
 
         /*
