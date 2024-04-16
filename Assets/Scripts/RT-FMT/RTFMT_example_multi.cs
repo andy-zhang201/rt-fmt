@@ -22,7 +22,7 @@ public class RTFMT_example_multi : MonoBehaviour
 {
     // Planner parameters
     public int numberOfSamples = 500;
-    public bool drawTree = true;
+    public bool drawTree = false;
     public bool drawNodes = false;
     public bool fixSeed = true;
 
@@ -63,13 +63,13 @@ public class RTFMT_example_multi : MonoBehaviour
 
     //// Experiments
     
+    List<ResultsManagerShort> resultsListShort;
     public bool arrivedFinish = false;
     public int runCounter = 1;
-    public int maxRuns = 3;
+    public int maxRuns = 1;
 
     // Exp Dta:
 
-    long planTime;
     long arrivalTime;
     float plannedCost;
     bool success;
@@ -131,6 +131,7 @@ public class RTFMT_example_multi : MonoBehaviour
         motionController = new MotionController(this, this.gain);
 
         Debug.Log("ID:" + this.GetInstanceID());
+        resultsListShort = new List<ResultsManagerShort>();
 
         /////Priority System/////
         next_node = new Node(startPosition, 0, NodeState.Undefined);
@@ -223,6 +224,12 @@ public class RTFMT_example_multi : MonoBehaviour
         {
             
             Debug.Log("Total Arrival Time: " + StateManager.instance.totalArrivalTime + " Total Executed Cost: " + StateManager.instance.totalExecutedCost);
+            resultsListShort.Add(new ResultsManagerShort
+            {
+                arrivalTime = StateManager.instance.totalArrivalTime,
+                executedCost = StateManager.instance.totalExecutedCost
+            });
+
             StateManager.instance.reset_experiment();
 
             runCounter++;
@@ -234,15 +241,14 @@ public class RTFMT_example_multi : MonoBehaviour
         if (runCounter > maxRuns)
         {
             // // Write Results
-            // scenename = SceneManager.GetActiveScene().name;
-            // String datestr = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
-            // String filename1 = String.Concat("./Results/", "MuliAgent_NoDyn", "_", datestr, ".csv");
+            String datestr = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
+            String filename1 = String.Concat("./Results/", "MuliAgent_NoDyn", "_", datestr, ".csv");
 
-            // using (var writer = new StreamWriter(filename1))
-            // using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            // {
-            //     csv.WriteRecords(resultsList);
-            // }
+            using (var writer = new StreamWriter(filename1))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(resultsListShort);
+            }
         
             // ExperimentManager experimentData = new ExperimentManager
             // {

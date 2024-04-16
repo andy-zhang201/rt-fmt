@@ -53,7 +53,7 @@ public class StateManager : MonoBehaviour {
     public Dictionary<GameObject, Pair> nextNodeDictionary;
     private static Dictionary<string, int> staticPrioDictionary;
     public float totalExecutedCost = 0;
-    public double totalArrivalTime = 0;
+    public long totalArrivalTime = 0;
 
 
     /*
