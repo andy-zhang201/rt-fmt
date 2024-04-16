@@ -61,6 +61,26 @@ public class RTFMT_example_multi : MonoBehaviour
     public Node next_node;
     public Dictionary<GameObject, Pair> nextNodeDictionary;
 
+    //// Experiments
+    
+    public bool arrivedFinish = false;
+    public int runCounter = 1;
+    public int maxRuns = 3;
+
+    // Exp Dta:
+
+    long planTime;
+    long arrivalTime;
+    float plannedCost;
+    bool success;
+    bool use_multi = false;
+    float executedCost;
+    int nodeCount;
+    int attempts;
+    bool finishedExperiment;
+    bool planTimeObtained = false;
+    bool collided = false;
+
     // Use this for initialization
     void Start()
     {
@@ -168,11 +188,21 @@ public class RTFMT_example_multi : MonoBehaviour
             sp = spNode.q;
             motionController.control(sp, ballRadius / 2);
             planner.updateRoot();
-
         }
 
-        if (((this.transform.position - planner.goalNode.q).magnitude <= ballRadius))
+        if (((this.transform.position - planner.goalNode.q).magnitude <= ballRadius*2.2) && !arrivedFinish)
         {
+            
+            StateManager.instance.agentsDone++;
+            arrivedFinish = true;
+            executedCost = motionController.getExecutedCost();
+            arrivalTime = planner.getPlanTime();
+
+            Debug.Log("Agent name: "+ this.gameObject.name + " Path Cost " + executedCost + " Arrival Time: " + arrivalTime);
+
+            StateManager.instance.totalExecutedCost += executedCost;
+            StateManager.instance.totalArrivalTime += arrivalTime;
+
             //arrivalTime = planner.getPlanTime();
             //executedCost = motionController.getExecutedCost();
             //Debug.Log("planTime: " + planTime + ", arrivalTime: " + arrivalTime + ", plannedCost: " + plannedCost + ", executedCost: " + executedCost + ", success: " + success + ", collided: " + collided + ", attempts: " + attempts + ", nodes: " + nodeCount); //+ ", attempts: " + attempts + ", nodes: " + nodeCount);
@@ -184,12 +214,65 @@ public class RTFMT_example_multi : MonoBehaviour
             //planner.init(this.transform.position, numberOfSamples);
             //planner.setGoal(goalPosition);
 
-
+            
             //this.GetComponent<Rigidbody>().velocity = Vector3.zero;
             //this.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-            //Reset();
             //resetDObstacles();
         }
+        if (StateManager.instance.agentsDone == 3)
+        {
+            
+            Debug.Log("Total Arrival Time: " + StateManager.instance.totalArrivalTime + " Total Executed Cost: " + StateManager.instance.totalExecutedCost);
+            StateManager.instance.reset_experiment();
+
+            runCounter++;
+            Reset();
+
+        }
+
+        // Experiment Finished
+        if (runCounter > maxRuns)
+        {
+            // // Write Results
+            // scenename = SceneManager.GetActiveScene().name;
+            // String datestr = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
+            // String filename1 = String.Concat("./Results/", "MuliAgent_NoDyn", "_", datestr, ".csv");
+
+            // using (var writer = new StreamWriter(filename1))
+            // using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            // {
+            //     csv.WriteRecords(resultsList);
+            // }
+        
+            // ExperimentManager experimentData = new ExperimentManager
+            // {
+            //     maxExperimentRuns = maxExperimentRuns,
+            //     maxIterationExperiment = maxIterationExperiment,
+            //     iterationIncrement = iterationIncrement,
+            //     iterationExperiment = iterationExperiment,
+            //     gain = gain,
+            //     experiment = experiment,
+            //     scenename = scenename
+            //     //Samples  
+            // };
+
+            // // Write Parameters
+            // List<ExperimentManager> experimentDataList = new List<ExperimentManager>();
+            // experimentDataList.Add(experimentData);
+
+            // String filename2 = String.Concat("./Results/", scenename, expname, experiment.ToString(), "_", datestr, "_param.csv");
+
+            // using (var writer = new StreamWriter(filename2))
+            // using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            // {
+            //     csv.WriteRecords(experimentDataList);
+            // }
+
+            // Stop the Simulation
+            EditorApplication.ExecuteMenuItem("Edit/Play");
+
+        }
+        
     }
 
     Node findNextSetpoint(List<Node> path)
@@ -317,10 +400,10 @@ public class RTFMT_example_multi : MonoBehaviour
 
     }
 
-    //public void Reset()
-    //{
-    //	SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    //}
+    public void Reset()
+    {
+    	SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
     public void resetDObstacles()
     {
         for (int i = 0; i < dynamicObstaclesObjs.Count; i++)

@@ -14,7 +14,7 @@ public class MotionController{
     Vector3 lastPos;
 
     // PARAM: How close agents need to be before velocity planning kicks in
-    float closeness_threshold = 20.0f; //High value for testing purposes
+    float closeness_threshold = 5.0f; //High value for testing purposes
 
     // public MotionController(RTFMT_example_multi rtfmt, float gain)
     // {
@@ -82,14 +82,14 @@ public class MotionController{
 
             float goalCloseness = Vector3.Distance(this.unityComponent.transform.position, this.unityComponent.goalPosition);
             
-            Debug.Log("--------------------");
-            Debug.Log("Agent Name: "+ agentObj);
-            Debug.Log("Agent Velocity: "+ this.unityComponent.GetComponent<Rigidbody>().velocity);
-            Debug.Log("Agent Priority: " + agentPriority);
-            Debug.Log("Agent Closeness to Goal: " + goalCloseness);
-            Debug.Log("Other Agent name 1: " + tf_other_agents[0].gameObject.name + "Other Agent1 Priority: "+ staticPriorityDict[tf_other_agents[0].gameObject.name]);
-            Debug.Log("Other Agent name 2: " + tf_other_agents[1].gameObject.name + "Other Agent2 Priority: "+ staticPriorityDict[tf_other_agents[1].gameObject.name]);
-            Debug.Log("--------------------");
+            // Debug.Log("--------------------");
+            // Debug.Log("Agent Name: "+ agentObj);
+            // Debug.Log("Agent Velocity: "+ this.unityComponent.GetComponent<Rigidbody>().velocity);
+            // Debug.Log("Agent Priority: " + agentPriority);
+            // Debug.Log("Agent Closeness to Goal: " + goalCloseness);
+            // Debug.Log("Other Agent name 1: " + tf_other_agents[0].gameObject.name + "Other Agent1 Priority: "+ staticPriorityDict[tf_other_agents[0].gameObject.name]);
+            // Debug.Log("Other Agent name 2: " + tf_other_agents[1].gameObject.name + "Other Agent2 Priority: "+ staticPriorityDict[tf_other_agents[1].gameObject.name]);
+            // Debug.Log("--------------------");
             
             float slowFactor = 1.0f; // reduce this for every higher priority agent close by that's closer to the goal than the current agent.
             

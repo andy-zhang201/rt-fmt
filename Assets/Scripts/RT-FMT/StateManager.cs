@@ -47,8 +47,14 @@ public class StateManager : MonoBehaviour {
     public float sphereColliderRadius = 0.5f;
     public float ballRadius;
 
+    //Experiment Parameters
+    public int agentsDone = 0;
+
     public Dictionary<GameObject, Pair> nextNodeDictionary;
     private static Dictionary<string, int> staticPrioDictionary;
+    public float totalExecutedCost = 0;
+    public double totalArrivalTime = 0;
+
 
     /*
      **************************
@@ -64,6 +70,7 @@ public class StateManager : MonoBehaviour {
     // Map bounds
     public Vector2 xBound = new Vector2(-50, 50);
     public Vector2 yBound = new Vector2(-50, 50);
+    
 
     // Create singleton class instance (only one instance present at all times)
     private void Awake() {
@@ -140,11 +147,16 @@ public class StateManager : MonoBehaviour {
         {
             Pair priority = new Pair {priorityDistance = agentsObjects[i].GetComponent<RTFMT_example_multi>().priorityDistance, next_node = agentsObjects[i].GetComponent<RTFMT_example_multi>().next_node};
             nextNodeDictionary[agentsObjects[i]] = priority;
-            Debug.Log("NextNodeDictionary:" + nextNodeDictionary[agentsObjects[i]].next_node);
+            // Debug.Log("NextNodeDictionary:" + nextNodeDictionary[agentsObjects[i]].next_node);
         }
 
         return nextNodeDictionary;
     }
+
+    void Update() {
+        
+    }
+
 
     public Dictionary<string, int> GetStaticPriority()
     {
@@ -272,5 +284,17 @@ Debug.Log("The free volume is: " + freeVol);
             }
         }
         return realList;
+    }
+
+    public bool runFinished()
+    {
+        // Check if all agents have reached their goal
+
+        return true;
+    }
+    public void reset_experiment(){
+        agentsDone = 0;
+        totalExecutedCost = 0;
+        totalArrivalTime = 0;
     }
 }
