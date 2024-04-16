@@ -1,0 +1,5 @@
+planTime,arrivalTime,plannedCost,success,nodes,attempts,executedCost,collision
+-1,21,-1,False,1,1002,0,False
+-1,13,-1,False,1,1002,0,False
+-1,197,-1,False,1,1002,0,False
+-1,139,-1,False,1,1002,0,False

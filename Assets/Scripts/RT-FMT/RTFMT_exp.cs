@@ -51,10 +51,10 @@ public class RTFMT_exp : MonoBehaviour
     public float safeRadiusDObstacle = 2f;
     public float checkDObstacleDistance = 10f;
     int experimentCounter = 0;
-    public int maxExperimentRuns = 4;
+    public int maxExperimentRuns = 100;
 
-    public int maxIterationExperiment = 1000;
-    public int iterationIncrement = 500;
+    public int maxIterationExperiment = 2000;
+    public int iterationIncrement = 1;
     public int iterationExperiment = 1000;
 
     public float gain = 2;
