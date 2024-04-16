@@ -1,0 +1,2 @@
+maxExperimentRuns,maxIterationExperiment,iterationIncrement,iterationExperiment,gain,experiment,scenename
+4,1500,500,2000,2,1,RTFMT_maze_1

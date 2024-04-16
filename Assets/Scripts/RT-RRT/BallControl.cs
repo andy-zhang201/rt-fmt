@@ -2419,11 +2419,11 @@ public class BallControl : MonoBehaviour
     public LayerMask dynamicObstaclayer;
 
     int experimentCounter = 0;
-    public int maxExperimentRuns = 50;
+    public int maxExperimentRuns = 4;
 
-    public int maxIterationExperiment = 4500;
+    public int maxIterationExperiment = 500;
     public int iterationIncrement = 500;
-    public int iterationExperiment = 50;
+    public int iterationExperiment = 1000;
 
     public float gain = 2;
     public int experiment = 1;
@@ -2710,7 +2710,7 @@ public class BallControl : MonoBehaviour
         if ((current_goal - m_agent_pos).magnitude < ballRadius || (mRRT.finishedGrowingTree() && success == false) || collided == true)
         {
             arrivalTime = mRRT.getPlanTime();
-            executedCost = motionController.getExecutedCost();
+            executedCost = motionController.getExecutedCostExp();
             resultsList.Add(new ResultsManager { planTime = planTime, arrivalTime = arrivalTime, plannedCost = plannedCost, success = success, nodes = nodeCount, executedCost = executedCost, attempts = attempts, collision = collided });
 
             Debug.Log("planTime: " + planTime + ", arrivalTime: " + arrivalTime + ", plannedCost: " + plannedCost + ", executedCost: " + executedCost + ", success: " + success + ", collided: " + collided + ", attempts: " + attempts + ", nodes: " + nodeCount); //+ ", attempts: " + attempts + ", nodes: " + nodeCount); 
@@ -2736,7 +2736,7 @@ public class BallControl : MonoBehaviour
             not_done_yet = true;
             planTimeObtained = false;
             collided = false;
-            motionController.clearCost();
+            motionController.clearCostExp();
             resetDObstacles();
         }
 
@@ -2751,7 +2751,7 @@ public class BallControl : MonoBehaviour
         {
             scenename = SceneManager.GetActiveScene().name;
             String datestr = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
-            String filename1 = String.Concat("./Results/", scenename, expname, experiment.ToString(), "_", datestr, ".csv");
+            String filename1 = String.Concat("./ResultsRRT/", scenename, expname, experiment.ToString(), "_", datestr, ".csv");
             using (var writer = new StreamWriter(filename1))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
@@ -2771,7 +2771,7 @@ public class BallControl : MonoBehaviour
             List<ExperimentManager> experimentDataList = new List<ExperimentManager>();
             experimentDataList.Add(experimentData);
 
-            String filename2 = String.Concat("./Results/", scenename, expname, experiment.ToString(), "_", datestr, "_param.csv");
+            String filename2 = String.Concat("./ResultsRRT/", scenename, expname, experiment.ToString(), "_", datestr, "_param.csv");
 
             using (var writer = new StreamWriter(filename2))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
@@ -2874,7 +2874,7 @@ public class BallControl : MonoBehaviour
         mRRT.update_costs_basedOn_movingObstacles(obstacles_pos);
         if (FlagMoveAgent & moveOnlyWhenFinished)
         {
-            motionController.control(move_to_pos, ballRadius / 2);
+            motionController.control2(move_to_pos, ballRadius / 2);
         }
         else
         {

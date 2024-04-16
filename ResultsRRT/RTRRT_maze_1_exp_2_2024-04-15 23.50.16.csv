@@ -1,0 +1,5 @@
+planTime,arrivalTime,plannedCost,success,nodes,attempts,executedCost,collision
+-1,2756,-1,False,414,1000,5.316222,False
+2494,36971,69.5877457,True,570,1000,73.5431442,False
+3078,34622,64.19258,True,661,1000,68.84391,False
+2516,33783,54.3747826,True,677,1000,66.8841248,False

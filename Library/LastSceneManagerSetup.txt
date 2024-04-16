@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Example/RTFMT_dynamic_MultiAgent.unity
+- path: Assets/Scenes/Experiments/Experiment 3/RTRRT_maze_1.unity
   isLoaded: 1
   isActive: 1

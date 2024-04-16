@@ -252,7 +252,6 @@ public class RTFMTPlanner
     public void update()
     {
         //Slow sim speed
-        Time.timeScale = 0.5f;
         updateObstructedNodes();
 
 
