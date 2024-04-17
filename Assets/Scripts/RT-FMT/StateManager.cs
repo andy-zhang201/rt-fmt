@@ -54,6 +54,9 @@ public class StateManager : MonoBehaviour {
     private static Dictionary<string, int> staticPrioDictionary;
     public float totalExecutedCost = 0;
     public long totalArrivalTime = 0;
+    
+    public bool collision_before_finish = false;
+    public int run_counter = 1;
 
 
     /*

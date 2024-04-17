@@ -5,7 +5,7 @@ using UnityEngine;
 public class MotionController{
 
     public float gain = 2.0f;
-    public bool use_multi = true;
+    public bool use_multi = false;
     public float default_gain = 2.0f;
     RTFMT_example_multi unityComponent;
     MonoBehaviour unityComponentExp;

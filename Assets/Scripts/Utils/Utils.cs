@@ -156,6 +156,8 @@ namespace Utils
     }
 
     public class ResultsManagerShort{
+
+        public int experimentNum {get; set; }
         public long arrivalTime { get; set; }
         public float executedCost { get; set; }
         public bool collision { get; set; }

@@ -52,7 +52,7 @@ public class RTFMT_example_multi : MonoBehaviour
     List<Node> path;
     Vector3 sp;
 
-    public Vector3 goalPosition = new Vector3(-20, ballRadius, 10);
+    public Vector3 goalPosition = new Vector3(0, ballRadius, 18);
     public float safeRadiusDObstacle = 2f;
     public float checkDObstacleDistance = 10f;
 
@@ -68,14 +68,13 @@ public class RTFMT_example_multi : MonoBehaviour
     List<ResultsManagerShort> resultsListShort;
     public bool arrivedFinish = false;
     public int runCounter = 1;
-    public int maxRuns = 1;
+    public int maxRuns = 25;
 
     // Exp Dta:
 
     long arrivalTime;
     float plannedCost;
     bool success;
-    bool use_multi = false;
     float executedCost;
     int nodeCount;
     int attempts;
@@ -206,7 +205,7 @@ public class RTFMT_example_multi : MonoBehaviour
 
             StateManager.instance.totalExecutedCost += executedCost;
             StateManager.instance.totalArrivalTime += arrivalTime;
-
+            
             //arrivalTime = planner.getPlanTime();
             //executedCost = motionController.getExecutedCost();
             //Debug.Log("planTime: " + planTime + ", arrivalTime: " + arrivalTime + ", plannedCost: " + plannedCost + ", executedCost: " + executedCost + ", success: " + success + ", collided: " + collided + ", attempts: " + attempts + ", nodes: " + nodeCount); //+ ", attempts: " + attempts + ", nodes: " + nodeCount);
@@ -226,23 +225,24 @@ public class RTFMT_example_multi : MonoBehaviour
         if (StateManager.instance.agentsDone == 3)
         {
             
-            Debug.Log("Total Arrival Time: " + StateManager.instance.totalArrivalTime + " Total Executed Cost: " + StateManager.instance.totalExecutedCost);
+            Debug.Log("Num: " +StateManager.instance.run_counter.ToString() +"Total Arrival Time: " + StateManager.instance.totalArrivalTime + " Total Executed Cost: " + StateManager.instance.totalExecutedCost);
             resultsListShort.Add(new ResultsManagerShort
             {
+                experimentNum = StateManager.instance.run_counter,
                 arrivalTime = StateManager.instance.totalArrivalTime,
                 executedCost = StateManager.instance.totalExecutedCost,
-                collision = collided
+                collision = StateManager.instance.collision_before_finish
             });
 
             StateManager.instance.reset_experiment();
 
-            runCounter++;
+            StateManager.instance.run_counter++;
             Reset();
 
         }
 
         // Experiment Finished
-        if (runCounter > maxRuns)
+        if (StateManager.instance.run_counter > maxRuns)
         {
             // // Write Results
             String datestr = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
@@ -402,10 +402,11 @@ public class RTFMT_example_multi : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         var tag = collision.gameObject.tag;
-        if ((1 << collision.gameObject.layer) == agentLayer)
+        if (((1 << collision.gameObject.layer) == agentLayer)|| ((1 << collision.gameObject.layer) == fixedObstaclesLayer))
         {
             Debug.Log("Collision");
             collided = true;
+            StateManager.instance.collision_before_finish = true;
         }
 
     }
