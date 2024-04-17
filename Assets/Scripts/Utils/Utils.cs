@@ -158,6 +158,7 @@ namespace Utils
     public class ResultsManagerShort{
         public long arrivalTime { get; set; }
         public float executedCost { get; set; }
+        public bool collision { get; set; }
 
     }
 }

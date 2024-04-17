@@ -40,6 +40,8 @@ public class RTFMT_example_multi : MonoBehaviour
     public LayerMask fixedObstaclesLayer;
     public LayerMask dynamicObstaclayer;
 
+    public LayerMask agentLayer;
+
     RTFMTPlannerMultiAgent planner;
     MotionController motionController;
     List<GameObject> dynamicObstaclesObjs;
@@ -103,6 +105,7 @@ public class RTFMT_example_multi : MonoBehaviour
         Debug.Log("Agents Size: " + agents.Count);
         agents.Remove(this.transform);
         Debug.Log("Agents Size AFTER REMOVE: " + agents.Count);
+        agentLayer = StateManager.instance.agentsLayer;
 
         dynamicObstacles = dynamicObstacles.Concat(agents).ToList();
         Debug.Log("Dynamic Obs Size: " + dynamicObstacles.Count);
@@ -191,7 +194,7 @@ public class RTFMT_example_multi : MonoBehaviour
             planner.updateRoot();
         }
 
-        if (((this.transform.position - planner.goalNode.q).magnitude <= ballRadius*2.2) && !arrivedFinish)
+        if (((this.transform.position - planner.goalNode.q).magnitude <= ballRadius*2.5) && !arrivedFinish)
         {
             
             StateManager.instance.agentsDone++;
@@ -227,7 +230,8 @@ public class RTFMT_example_multi : MonoBehaviour
             resultsListShort.Add(new ResultsManagerShort
             {
                 arrivalTime = StateManager.instance.totalArrivalTime,
-                executedCost = StateManager.instance.totalExecutedCost
+                executedCost = StateManager.instance.totalExecutedCost,
+                collision = collided
             });
 
             StateManager.instance.reset_experiment();
@@ -398,10 +402,10 @@ public class RTFMT_example_multi : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         var tag = collision.gameObject.tag;
-        if ((1 << collision.gameObject.layer) == dynamicObstaclayer)
+        if ((1 << collision.gameObject.layer) == agentLayer)
         {
             Debug.Log("Collision");
-            //collided = true;
+            collided = true;
         }
 
     }
