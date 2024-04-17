@@ -66,6 +66,7 @@ public class RTFMT_example_multi : MonoBehaviour
     //// Experiments
     
     List<ResultsManagerShort> resultsListShort;
+    List<ResultsManagerOneLine> resultsListOneLine;
     public bool arrivedFinish = false;
     public int runCounter = 1;
     public int maxRuns = 25;
@@ -81,6 +82,9 @@ public class RTFMT_example_multi : MonoBehaviour
     bool finishedExperiment;
     bool planTimeObtained = false;
     bool collided = false;
+
+    public static String datestr = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
+    public String filePath = String.Concat("./Results/", "MuliAgentIndivData", "_", datestr, ".csv");
 
     // Use this for initialization
     void Start()
@@ -201,7 +205,28 @@ public class RTFMT_example_multi : MonoBehaviour
             executedCost = motionController.getExecutedCost();
             arrivalTime = planner.getPlanTime();
 
+
             Debug.Log("Agent name: "+ this.gameObject.name + " Path Cost " + executedCost + " Arrival Time: " + arrivalTime);
+
+            // Call csv.writeline here
+            
+            String currTime = DateTime.Now.ToString("HH:mm:ss");
+
+            // Path to the CSV file
+
+            // Check if the file already exists, if not create it and add headers
+            if (!File.Exists(this.filePath))
+            {
+                using (StreamWriter writer = new StreamWriter(this.filePath))
+                {
+                    writer.WriteLine("Experiment Time, Agent Name, Arrival Duration, Executed Cost, Collided");
+        
+                }
+            }
+            using (StreamWriter writer = File.AppendText(this.filePath))
+            {
+                writer.WriteLine($"{currTime}, {this.gameObject.name}, {arrivalTime}, {executedCost}, {collided}");
+            }
 
             StateManager.instance.totalExecutedCost += executedCost;
             StateManager.instance.totalArrivalTime += arrivalTime;
@@ -225,7 +250,14 @@ public class RTFMT_example_multi : MonoBehaviour
         if (StateManager.instance.agentsDone == 3)
         {
             
-            Debug.Log("Num: " +StateManager.instance.run_counter.ToString() +"Total Arrival Time: " + StateManager.instance.totalArrivalTime + " Total Executed Cost: " + StateManager.instance.totalExecutedCost);
+            String currTime2 = DateTime.Now.ToString("HH:mm:ss");
+
+        
+            using (StreamWriter writer = File.AppendText(this.filePath))
+            {
+                writer.WriteLine($"{currTime2}, Total Arrival Time & Executed Cost:, {StateManager.instance.totalArrivalTime}, {StateManager.instance.totalExecutedCost}, {collided}");
+            }
+            
             resultsListShort.Add(new ResultsManagerShort
             {
                 experimentNum = StateManager.instance.run_counter,

@@ -163,4 +163,15 @@ namespace Utils
         public bool collision { get; set; }
 
     }
+
+    public class ResultsManagerOneLine{
+
+        public string time {get; set; }
+
+        public string agentName {get; set; }
+        public long arrivalTime { get; set; }
+        public float executedCost { get; set; }
+        public bool collision { get; set; }
+
+    }
 }
